@@ -2,73 +2,7 @@
 #include <stdlib.h>
 #include "Header.h"
 
-// Function to create a new node
-Node *createNode(int value)
-{
-    Node *newNode = (Node *)malloc(sizeof(Node));
-    if (newNode != NULL)
-    {
-        newNode->value = value;
-        newNode->nextRow = NULL;
-        newNode->nextCol = NULL;
-    }
-    return newNode;
-}
 
-// Function to insert a node at the end of a row
-void insertRowEnd(Node **head, int value)
-{
-    Node *newNode = createNode(value);
-    if (*head == NULL)
-    {
-        *head = newNode;
-    }
-    else
-    {
-        Node *temp = *head;
-        while (temp->nextRow != NULL)
-        {
-            temp = temp->nextRow;
-        }
-        temp->nextRow = newNode;
-    }
-}
-
-// Function to insert a node at the end of a column
-void insertColEnd(Node **head, int value)
-{
-    Node *newNode = createNode(value);
-    if (*head == NULL)
-    {
-        *head = newNode;
-    }
-    else
-    {
-        Node *temp = *head;
-        while (temp->nextCol != NULL)
-        {
-            temp = temp->nextCol;
-        }
-        temp->nextCol = newNode;
-    }
-}
-
-// Function to display the matrix
-void displayMatrix(Matrix *matrix)
-{
-    Node *tempRow = matrix->rowHead;
-    while (tempRow != NULL)
-    {
-        Node *tempCol = tempRow;
-        while (tempCol != NULL)
-        {
-            printf("%d ", tempCol->value);
-            tempCol = tempCol->nextCol;
-        }
-        printf("\n");
-        tempRow = tempRow->nextRow; // Avança para a próxima linha
-    }
-}
 Matrix *readMatrixFromFile(const char *filename)
 {
     FILE *file = fopen(filename, "r");
@@ -111,7 +45,7 @@ Matrix *readMatrixFromFile(const char *filename)
         }
         else
         {
-            insertColEnd(&row, value);
+            insertColEnd(row, value);
         }
 
         count++;
@@ -119,6 +53,68 @@ Matrix *readMatrixFromFile(const char *filename)
 
     fclose(file);
     return matrix;
+}
+
+Node *createNode(int value)
+{
+    Node *newNode = (Node *)malloc(sizeof(Node));
+    if (newNode != NULL)
+    {
+        newNode->value = value;
+        newNode->nextRow = NULL;
+        newNode->nextCol = NULL;
+    }
+    return newNode;
+}
+
+void displayMatrix(Matrix *matrix)
+{
+    Node *tempRow = matrix->rowHead;
+    while (tempRow != NULL)
+    {
+        Node *tempCol = tempRow;
+        while (tempCol != NULL)
+        {
+            printf("%d ", tempCol->value);
+            tempCol = tempCol->nextCol;
+        }
+        printf("\n");
+        tempRow = tempRow->nextRow;
+    }
+}
+
+void insertRowEnd(Node *head, int value)
+{
+    Node *newNode = createNode(value);
+    if (head == NULL)
+    {
+        printf("Invalid head node.\n");
+        return;
+    }
+
+    Node *temp = head;
+    while (temp->nextRow != NULL)
+    {
+        temp = temp->nextRow;
+    }
+    temp->nextRow = newNode;
+}
+
+void insertColEnd(Node *head, int value)
+{
+    Node *newNode = createNode(value);
+    if (head == NULL)
+    {
+        printf("Invalid head node.\n");
+        return;
+    }
+
+    Node *temp = head;
+    while (temp->nextCol != NULL)
+    {
+        temp = temp->nextCol;
+    }
+    temp->nextCol = newNode;
 }
 
 void changeConstant(Matrix *matrix, int newValue)
@@ -139,6 +135,7 @@ void changeConstant(Matrix *matrix, int newValue)
 void insertNewRow(Matrix *matrix)
 {
     Node *newRow = createNode(0);
+    int value;
 
     if (matrix->rowHead == NULL)
     {
@@ -153,37 +150,135 @@ void insertNewRow(Matrix *matrix)
         }
         lastRow->nextRow = newRow;
     }
-
+    printf("Enter the value:");
+    scanf("%d", &value);
     for (int i = 0; i < 5; i++)
     {
-        insertColEnd(&newRow, 0); // Initialize row elements with default value
+        insertColEnd(newRow, value);
     }
 }
 
 void insertNewColumn(Matrix *matrix)
 {
+    int value;
     Node *currentRow = matrix->rowHead;
 
+    printf("Enter the value:");
+    scanf("%d", &value);
     while (currentRow != NULL)
     {
-        insertColEnd(&currentRow, 0); // Initialize new column elements with default value
+        insertColEnd(currentRow, value);
         currentRow = currentRow->nextRow;
     }
 }
 
-void displayTabularListing(Matrix* matrix) {
-    Node* currentRow = matrix->rowHead;
+void removeRow(Matrix *matrix, int rowIndex)
+{
+    if (matrix == NULL || matrix->rowHead == NULL)
+    {
+        printf("Matrix is empty.\n");
+        return;
+    }
 
-    printf("\n===== Tabular Listing of Matrix Integers =====\n");
+    Node *currentRow = matrix->rowHead;
+    Node *prevRow = NULL;
+    int count = 0;
 
-    while (currentRow != NULL) {
-        Node* currentCol = currentRow;
-        
-        while (currentCol != NULL) {
+    // Traverse until the specified row index or the end of the matrix
+    while (currentRow != NULL && count != rowIndex)
+    {
+        prevRow = currentRow;
+        currentRow = currentRow->nextRow;
+        count++;
+    }
+
+    if (currentRow == NULL)
+    {
+        printf("Invalid row index.\n");
+        return;
+    }
+
+    // If the row to be deleted is the first row
+    if (prevRow == NULL)
+    {
+        matrix->rowHead = currentRow->nextRow;
+    }
+    else
+    {
+        prevRow->nextRow = currentRow->nextRow;
+    }
+
+    // Free memory of nodes in the deleted row
+    Node *temp = currentRow;
+    while (temp != NULL)
+    {
+        Node *nextNode = temp->nextCol;
+        free(temp);
+        temp = nextNode;
+    }
+}
+
+void removeColumn(Matrix *matrix, int colIndex)
+{
+    if (matrix == NULL || matrix->rowHead == NULL)
+    {
+        printf("Matrix is empty.\n");
+        return;
+    }
+
+    Node *currentRow = matrix->rowHead;
+
+    // Traverse each row
+    while (currentRow != NULL)
+    {
+        Node *currentCol = currentRow;
+        Node *prevCol = NULL;
+        int count = 0;
+
+        // Traverse until the specified column index or the end of the row
+        while (currentCol != NULL && count != colIndex)
+        {
+            prevCol = currentCol;
+            currentCol = currentCol->nextCol;
+            count++;
+        }
+
+        if (currentCol == NULL)
+        {
+            printf("Invalid column index.\n");
+            return;
+        }
+
+        // If the column to be deleted is the first column
+        if (prevCol == NULL)
+        {
+            currentRow = currentCol->nextCol;
+        }
+        else
+        {
+            prevCol->nextCol = currentCol->nextCol;
+        }
+
+        free(currentCol); // Free memory of the deleted node
+
+        currentRow = currentRow->nextRow; // Move to the next row
+    }
+}
+
+void displayTabularListing(Matrix *matrix)
+{
+    Node *currentRow = matrix->rowHead;
+
+    while (currentRow != NULL)
+    {
+        Node *currentCol = currentRow;
+
+        while (currentCol != NULL)
+        {
             printf("%d\t", currentCol->value);
             currentCol = currentCol->nextCol;
         }
-        
+
         printf("\n");
         currentRow = currentRow->nextRow;
     }
@@ -193,6 +288,7 @@ void displayMatrixMenu(Matrix *matrix)
 {
     int choice;
     int constant;
+    int index;
 
     do
     {
@@ -201,8 +297,10 @@ void displayMatrixMenu(Matrix *matrix)
         printf("2. Update Matrix\n");
         printf("3. Insert New Row\n");
         printf("4. Insert New Column\n");
-        printf("5. Display Tabular Listing\n");
-        printf("6. Exit\n");
+        printf("5. Remove Row from the Matrix\n");
+        printf("6. Remove Column from the Matrix\n");
+        printf("7. Display Tabular Listing\n");
+        printf("8. Exit\n");
         printf("Enter your choice: ");
         scanf("%d", &choice);
 
@@ -227,15 +325,25 @@ void displayMatrixMenu(Matrix *matrix)
             printf("New column inserted into the matrix.\n");
             break;
         case 5:
+            printf("\nEnter the index of the row to remove: ");
+            scanf("%d", &index);
+            removeRow(matrix, index);
+            break;
+        case 6:
+            printf("\nEnter the index of the column to remove: ");
+            scanf("%d", &index);
+            removeColumn(matrix, index);
+            break;
+        case 7:
             printf("\n===== Tabular Listing of Matrix Integers =====\n");
             displayTabularListing(matrix);
             break;
-        case 6:
+        case 8:
             printf("Exiting Matrix Menu. Goodbye!\n");
             break;
         default:
             printf("Invalid choice. Please select a valid option.\n");
             break;
         }
-    } while (choice != 6);
+    } while (choice != 8);
 }
