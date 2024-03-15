@@ -44,7 +44,7 @@ void displayMatrix(Matrix *matrix);
  * A seguinte função insere um novo node no final de uma linha na matriz.
  * Se a linha estiver vazia, define o início com o novo node, caso contrário, percorre a linha até encontrar o último node e insere-o lá.
  */
-void insertRowEnd(Node *head, int value);
+Node *insertRowEnd(Node *head, int value);
 
 /*
  * Function: insertColEnd
@@ -52,7 +52,7 @@ void insertRowEnd(Node *head, int value);
  * A seguinte função insere um novo node no final de uma coluna na matriz.
  * Se a coluna estiver vazia, define o início com o novo node, caso contrário, percorre a coluna até encontrar o último node e insere-o lá.
  */
-void insertColEnd(Node *head, int value);
+Node *insertColEnd(Node *head, int value);
 
 /*
  * Function: changeConstant
@@ -60,35 +60,35 @@ void insertColEnd(Node *head, int value);
  * Esta função atualiza todos os valores na matriz com um novo valor.
  * Percorre cada node e atualiza o seu valor para a nova constante.
  */
-void changeConstant(Matrix *matrix, int newValue);
+Matrix *changeConstant(Matrix *matrix, int newValue);
 
 /*
  * Function: insertNewRow
  * ------------------------------------------
  * A função insertNewRow insere uma nova linha no final da matriz, cria uma nova linha com valores inseridos pelo utilizador e coloca-os no final da matriz.
  */
-void insertNewRow(Matrix *matrix);
+Matrix *insertNewRow(Matrix *matrix);
 
 /*
  * Function: insertNewColumn
  * ------------------------------------------
  * A função insertNewColumn insere uma nova coluna no final da matriz, cria uma nova coluna com valores inseridos pelo utilizador e coloca-os no final da matriz.
  */
-void insertNewColumn(Matrix *matrix);
+Matrix *insertNewColumn(Matrix *matrix);
 
 /*
  * Function: removeRow
  * ------------------------------------------
  * A seguinte função remove uma linha específica, referida pelo utilizador, de uma matriz.
  */
-void removeRow(Matrix *matrix, int rowIndex);
+Matrix *removeRow(Matrix *matrix, int rowIndex);
 
 /*
  * Function: removeColumn
  * ------------------------------------------
  * A seguinte função remove uma coluna específica, referida pelo utilizador, de uma matriz.
  */
-void removeColumn(Matrix *matrix, int colIndex);
+Matrix *removeColumn(Matrix *matrix, int colIndex);
 
 /*
  * Function: displayTabularListing
